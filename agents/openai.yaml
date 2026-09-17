@@ -1,0 +1,6 @@
+interface:
+  display_name: "Job Application Manager"
+  short_description: "Track offers, interviews, and preparation"
+  default_prompt: "Use $job-application-manager to add this job offer URL and assess my fit."
+policy:
+  allow_implicit_invocation: true
