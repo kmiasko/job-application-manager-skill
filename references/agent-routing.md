@@ -1,12 +1,12 @@
 # Agent routing
 
-Read this reference at the start of every skill invocation after resolving the data store. The data store's `settings.md` may select runtime-specific delegation options for each role. The embedded Codex defaults are:
+Read only when the entrypoint selects delegation. Inline capture, lists, and status updates do not need these instructions. The data store's `settings.md` may select runtime-specific delegation options for each role. The embedded Codex defaults are:
 
 | Role         | Model           | Reasoning effort | Responsibility                                                                                                                                                             |
 | ------------ | --------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Orchestrator | `gpt-5.6-terra` | `high`           | Own the plan, analysis, delegation, reconciliation, user approvals, Calendar operations, and completion check. Use this model only for explicitly delegated orchestration. |
-| Workspace    | `gpt-5.5`       | `high`           | Inspect and update local Markdown records. This is the only role allowed to write project files.                                                                           |
-| Research     | `gpt-5.6-terra` | `medium`         | Gather online offer, LinkedIn, company, and current technology evidence with sources. Remain read-only.                                                                    |
+| Workspace    | `gpt-5.6-luna`  | `medium`         | Inspect and update local Markdown records. In delegated work this is the only worker role allowed to write project files.                                                  |
+| Research     | `gpt-5.6-terra` | `medium`         | Gather sourced online evidence. Managed records remain read-only; scoped temporary capture evidence is permitted.                                                       |
 | Preparation  | `gpt-5.6-sol`   | `medium`         | Draft Polish interview preparation, technology explanations, and requested translations. Remain read-only.                                                                 |
 
 `xhigh` is a Codex reasoning-effort value. Other runtimes use their closest supported setting or their runtime default.
@@ -25,9 +25,9 @@ When the data store's `settings.md` is absent, use current-runtime defaults so i
 
 ## Entry agent
 
-If the current prompt does not explicitly assign one of the roles below, assume the orchestrator role inline. Dispatch the bounded research, preparation, and workspace tasks described below directly; this leaves maximum capacity for useful workers.
+If the current prompt does not explicitly assign one of the roles below, assume the orchestrator role inline. Delegate only bounded independent work whose benefit exceeds the handoff cost; otherwise perform it inline, including local writes.
 
-Use the offer workflow's inline fast path for a read-only list or unambiguous status-only update. Do not delegate those operations.
+Use the entrypoint's inline paths for offer capture, a read-only list, or an unambiguous status-only update unless delegation was explicitly requested or configured with `delegate: true`.
 
 Spawn exactly one orchestrator for the complete request only when the applicable `agent_routing.<runtime>.orchestrator.delegate` value is explicitly `true`. Resolve its other configured options, fall back to the embedded orchestrator model only for omitted supported options, and pass no `delegate` argument to the delegation tool. If delegation or capacity is unavailable, continue as orchestrator inline and report the fallback.
 
@@ -38,13 +38,13 @@ An entry agent that dispatched an orchestrator waits for it, relays required use
 If explicitly assigned the orchestrator role, own the operation to completion and do not spawn another orchestrator.
 
 - Read only the workflow references needed for the request.
-- Delegate online lookups and browser captures to one or more research agents when suitable subagents are available. This includes job postings, LinkedIn, company background, and current technology facts. Otherwise perform the bounded research directly and keep it read-only.
+- When independent research justifies delegation, assign bounded online lookups and browser captures to research agents. Otherwise perform the research directly.
 - Delegate independent preparation packs, shared technology explanations, and translations to one or more preparation agents when available. Supply each with research results and the minimum relevant local evidence. Otherwise prepare them directly.
-- Delegate project-file creation, edit, move, merge, dashboard rebuild, and local fingerprint updates to one workspace role when available. Otherwise perform those writes directly, serially, after read-only work is reconciled.
+- Perform local writes inline unless a workspace handoff materially reduces work or is explicitly requested. When delegating writes, use one workspace role; reconcile research first and keep only one writer active, including the orchestrator.
 - Perform profile analysis, conflict resolution, status decisions, and final synthesis when they are not preparation or online-research tasks.
 - Perform confirmed Calendar operations directly after the required preview and approval. Calendar changes are external operations, not workspace file updates.
 - Keep only one workspace writer active at a time. Use available capacity for independent read-only work, but do not create a subagent when its handoff is likely to cost more than the bounded task.
-- After delegated work, inspect the relevant results and have the workspace agent repair any incomplete or inconsistent record before reporting completion.
+- After delegated work, inspect the relevant results and repair incomplete records through the active writer before reporting completion.
 
 ## Bounded handoffs
 
@@ -52,15 +52,14 @@ Batch same-role work into one handoff when the tasks share sources and an output
 
 When the runtime controls inherited conversation history, pass no history by default. In Codex use `fork_turns: "none"`; use a small positive turn count only when essential user-provided material cannot be restated safely in the brief. Inherit the full conversation only when the worker has a concrete dependency on most of it.
 
-For token efficiency, prefer one research worker for a batch of offers and one reconciled workspace handoff. Fan out per offer only when the user prioritizes latency or one worker cannot complete the batch reliably. After the write, validate the touched frontmatter, newest history entries, and affected dashboard rows; broaden inspection only when those checks reveal a discrepancy.
+For delegated capture, prefer one research worker per batch and inline persistence; use a workspace handoff only when justified above. Pass scoped evidence-file paths instead of repeating posting text. Fan out per offer only when the user prioritizes latency or one worker cannot complete the batch reliably. After the write, validate touched frontmatter, newest history entries, and affected dashboard rows; broaden inspection only on discrepancies.
 
 ## Dispatch graph
 
 Fan out only after the stated inputs are stable, and join every result before the single workspace writer commits dependent files:
 
 - **Profile setup:** capture LinkedIn in a research agent while the orchestrator or workspace agent extracts and normalizes the CV. Join both normalized sources before profile analysis and interview-story generation.
-- **One new offer:** complete canonical-URL duplicate preflight and capture enough posting data to identify the company and requirements. Then run company research in a research agent. Join posting and company results before the workspace write.
-- **Several offer URLs:** perform one centralized duplicate preflight, then capture and research the URLs as one bounded batch by default. Reconcile cross-offer duplicates before any record is created. Fan out independent URLs only under the bounded-handoff rule. Once all inputs are stable, send one reconciled workspace request and rebuild the dashboard once.
+- **Offer capture:** follow [offer capture](offer-capture.md) inline by default. If delegation is selected, finish local duplicate preflight, assign posting and company capture together, reconcile results and cross-offer duplicates, then persist through one writer and update the dashboard once.
 - **Interview scheduling:** once the offer, stage, and local schedule details are unambiguous, preparation may begin independently of Calendar synchronization. After the user confirms the external operation, perform the Calendar mutation directly while independent preparation continues. Join both outcomes before the workspace agent records final synchronization state.
 - **Technology material:** research independent missing technologies concurrently within capacity. After evidence is available, draft independent technology documents concurrently when capacity remains. Reconcile shared terminology and sources before the workspace writer creates the files.
 - **Translations:** after the Polish managed content and its fingerprint are final, translate requested languages concurrently, one bounded task per language. Join all translations before the workspace writer creates them.
@@ -73,11 +72,11 @@ When an external action needs user confirmation, return the exact preview to the
 
 ## Workspace agent
 
-If explicitly assigned the workspace role, complete only the bounded local-data task supplied by the orchestrator. Read the applicable schema and workflow reference, preserve manual content, perform the requested Markdown changes, verify the resulting files, and return paths plus a concise change summary. Do not browse, create preparation prose, mutate Calendar, or spawn agents.
+If explicitly assigned the workspace role, complete only the bounded local-data task supplied by the orchestrator. For capture, read only [offer schema](offer-schema.md) and the supplied reconciled facts/evidence; other tasks load their applicable schema and workflow. Preserve manual content, perform the requested Markdown changes, verify the resulting files, and return paths plus a concise change summary. Do not browse, create preparation prose, mutate Calendar, or spawn agents.
 
 ## Research agent
 
-If explicitly assigned the research role, complete only the bounded online evidence task. Return structured facts, direct source URLs, access dates, quoted uncertainty, and missing information to the orchestrator. Apply the offer workflow's research limits. Do not write project files, create preparation prose, mutate Calendar, or spawn agents.
+If explicitly assigned the research role, complete only the bounded online evidence task. Return structured facts, direct source URLs, access dates, uncertainty, and missing information. Apply [offer capture](offer-capture.md)'s research limits and temporary evidence-file handoff when capturing offers. A specifically scoped temporary evidence file is permitted; managed project files remain writer-owned. Do not create preparation prose, mutate Calendar, or spawn agents.
 
 ## Preparation agent
 

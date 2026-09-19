@@ -13,7 +13,7 @@ Read [configuration](references/configuration.md) before any other reference. Re
 
 ## Agent routing
 
-After resolving the data store, read [agent routing](references/agent-routing.md) before any delegation or multi-step research, preparation, or workspace reconciliation. Handle a read-only application list or an unambiguous status-only update inline without loading routing. An agent explicitly assigned an orchestrator, workspace, research, or preparation role follows that role without recursively dispatching another orchestrator.
+Handle offer capture, read-only lists, and unambiguous status-only updates inline. Read [agent routing](references/agent-routing.md) only when delegation is requested, an applicable orchestrator setting has `delegate: true`, or independent work justifies its handoff cost. Model preferences alone do not request delegation. An explicitly assigned worker follows its bounded role without dispatching another orchestrator.
 
 ## Invariants
 
@@ -28,14 +28,14 @@ After resolving the data store, read [agent routing](references/agent-routing.md
 
 ## Route the request
 
-The configured orchestrator owns this routing:
+The entry agent, or explicitly delegated orchestrator, owns this routing:
 
-1. Read `<data-store>/settings.md` if it exists and verify setup rather than trusting `setup_complete`.
-2. If setup is absent, incomplete, or stale, read [profile workflow](references/profile-workflow.md). Permit only setup and repair operations until its completion criteria hold.
+1. Read `<data-store>/settings.md` if present and validate only settings used by this task. Missing project settings use workflow defaults; missing or invalid task-required values block only dependent work. Offer capture, lists, status/contact updates, company research, and local interview records need no profile-completeness check. Do not read profile files, compute profile hashes, or inspect Calendar configuration for those operations.
+2. For explicit profile setup/repair, fit assessment, or candidate-specific interview preparation, read [profile workflow](references/profile-workflow.md) and validate only the evidence needed. For Calendar operations, validate Calendar settings and authorization through the interview workflow. In mixed requests, complete independent work and report any blocked portion; `setup_complete` is never a global gate.
 3. For a read-only application list, read the managed region of `<data-store>/applications.md` and return it without loading offer records. Inspect only the affected offer frontmatter if the dashboard is missing or demonstrably inconsistent.
-4. For an offer URL or ID, duplicate handling, company research, status, refresh, merge, removal, or restoration, read [offer workflow](references/offer-workflow.md). Use its batch, status-only, or compact-capture mode when applicable.
+4. For adding offers or company research, read [offer capture](references/offer-capture.md). For existing-record status, refresh, merge, removal, restoration, or ID resolution, read [offer workflow](references/offer-workflow.md).
 5. For application contacts or submission details, interviews, Calendar, preparation, technology knowledge, interviewer details, reflections, comments, results, or translations, read [interview workflow](references/interview-workflow.md). Read [offer workflow](references/offer-workflow.md) too when changing application status or its `offer.md` metadata.
-6. Whenever creating or updating records, follow [project schema](references/project-schema.md). A status-only update may use the self-contained fast path in the offer workflow without loading unrelated schema sections.
+6. Offer capture uses only [offer schema](references/offer-schema.md). Other record creation or updates use [project schema](references/project-schema.md); status-only changes use the self-contained offer-workflow rules.
 
 If a request spans branches, read each applicable reference before changing files. Treat multiple offer URLs, IDs, or status operations in one prompt as one batch. A Calendar failure must not roll back valid local work or prevent preparation.
 

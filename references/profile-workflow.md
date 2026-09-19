@@ -1,25 +1,29 @@
 # Profile workflow
 
-Read this reference for initialization, settings repair, CV or LinkedIn ingestion, profile analysis, and profile-source changes.
+Read for explicit profile initialization/repair, ingestion, analysis, fit assessment, or candidate-specific interview preparation. Ordinary offer and local record operations do not load this reference.
+
+## Validate evidence for the task
+
+Validate only the sources and derived material the requested assessment or preparation will use. Check source readability, configured source identity where applicable, and matching fingerprints before trusting derived claims. Compute hashes locally and return discrepancies, not entire profile bodies: CV fingerprints cover source bytes; LinkedIn fingerprints cover the normalized captured content. Reuse the capture's normalization convention; if it is unknown, report unverifiable freshness rather than declaring a match. Do not fetch LinkedIn again without a refresh request.
+
+An assessment using only supplied CV evidence need not require LinkedIn, profile analysis, or interview stories. When using `profile-analysis.md`, verify its recorded fingerprints against the underlying sources; when using interview stories, check their cited evidence. Missing or stale evidence blocks only claims that depend on it. State the limitation and request the needed source or explicit repair; continue independent offer capture, logistics, company briefing, and technical preparation. Never infer candidate experience to fill gaps.
+
+`setup_complete` summarizes explicit profile setup, not permission to perform other workflows. Calendar settings and authorization are checked only for requested Calendar operations.
 
 ## Initialize
 
-If `settings.md` is absent, create only that file using the settings schema in [project schema](project-schema.md). Keep the recommended defaults, leave required values as visible placeholders, explain what the user must fill, and stop. Do not create any other project file in that operation.
+For an explicit initialization request, if `settings.md` is absent, create it using the settings schema in [project schema](project-schema.md), preserve existing offer records, explain which profile values must be filled, and stop the initialization portion. Independent work in the same request can continue.
 
-Treat setup as incomplete when any required setting is missing, either normalized source is missing or unreadable, a source fingerprint differs from the fingerprint used by the analysis, `profile-analysis.md` is absent, or `knowledge/interview-stories.md` is absent. While incomplete, permit only initialization, profile ingestion or analysis, settings repair, and setup diagnosis.
+For full profile setup, treat setup as incomplete when a required profile source setting is missing, either normalized source is missing or unreadable, source identity or fingerprints disagree with the analysis, `profile-analysis.md` is absent, or `knowledge/interview-stories.md` is absent. This affects full profile setup and dependent evidence only.
 
-Require these non-placeholder settings before analysis:
+Full profile setup requires these non-placeholder source settings:
 
 - `cv_file`
 - `linkedin_profile_url`
-- `google_calendar_id`
-- `timezone`
-- `technical_analysis_language`
-- `default_interview_language`
+
+Use `Europe/Warsaw` and Polish when timezone or analysis/preparation language settings are absent. Validate an explicitly supplied value when using it. Calendar ID is not a profile requirement.
 
 Routing configuration is optional and does not affect profile completeness. Before delegation, validate the current runtime's configured fields as described in [agent routing](agent-routing.md). Unsupported foreign-runtime or legacy values use current-runtime defaults with an explicit fallback notice; invalid settings for the current runtime permit only repair.
-
-Validate the Calendar ID's presence, not live authorization. Test authorization only immediately before the first requested Calendar operation.
 
 ## Capture sources
 
@@ -47,8 +51,8 @@ Record both source fingerprints in frontmatter so setup verification can detect 
 
 Create `knowledge/interview-stories.md` in Polish during the same operation. Build reusable STAR-style stories only from traceable profile evidence. Cite the relevant normalized-source section. When a complete story needs facts not present in either source, write focused questions for the user instead of filling gaps.
 
-After every output exists and fingerprints agree, set `setup_complete: true` in `settings.md`. Verify these conditions on every later skill invocation rather than trusting the flag.
+After every full-profile output exists and fingerprints agree, set `setup_complete: true` in `settings.md`. Later profile-dependent tasks validate their needed evidence as described above; other invocations do not recheck setup.
 
 ## Source changes
 
-If the configured source changes or its fingerprint no longer matches, set `setup_complete: false` and permit only setup or repair operations. On explicit reanalysis, overwrite `cv.md`, `linkedin.md`, `profile-analysis.md`, and the generated portions of `knowledge/interview-stories.md`; do not retain profile versions. Preserve `User-provided additions` and user-owned notes.
+If a profile operation detects a changed source identity or fingerprint, set `setup_complete: false` and stop relying on affected derived claims. Continue independent requested work. On explicit reanalysis, overwrite `cv.md`, `linkedin.md`, `profile-analysis.md`, and the generated portions of `knowledge/interview-stories.md`; do not retain profile versions. Preserve `User-provided additions` and user-owned notes.

@@ -4,13 +4,13 @@ Read this reference for application-contact details, interview records, intervie
 
 ## Application contact details
 
-When the user reports how they submitted an application, update the associated `offer.md` fields defined in [project schema](project-schema.md): application channel, contact method, contact name, contact details, and submission time. Capture only supplied information and preserve `not-available` for unknown values. A contact method (for example, a web form, email, LinkedIn message, phone, referral, or recruiter) is not itself authorization to send a message or submit an application.
+When the user reports how they submitted an application, update the associated `offer.md` fields defined in [offer schema](offer-schema.md): application channel, contact method, contact name, contact details, and submission time. Capture only supplied information and preserve `not-available` for unknown values. A contact method (for example, a web form, email, LinkedIn message, phone, referral, or recruiter) is not itself authorization to send a message or submit an application.
 
 ## Create an interview stage
 
-Require complete profile setup and resolve the offer unambiguously. Number stages sequentially and preserve a free-form recruiter-provided stage name; suggest the controlled stage names in [project schema](project-schema.md) when useful.
+Resolve the offer unambiguously; local scheduling and interview records do not require profile setup or Calendar configuration. Number stages sequentially and preserve a free-form recruiter-provided stage name; suggest the controlled stage names in [project schema](project-schema.md) when useful.
 
-Before an external Calendar write, resolve every material field and show a preview containing:
+For a requested external Calendar operation, require a non-placeholder target Calendar ID from the request or project settings and validate the schedule/timezone. Missing Calendar configuration blocks only synchronization; record local logistics and report what is needed. Before a write, resolve every material field and show a preview containing:
 
 - target Calendar ID;
 - title `Interview — Company — Role — Stage`;
@@ -40,7 +40,7 @@ The body contains agenda, logistics, verbatim comments, structured summary, comm
 
 ## Preparation pack
 
-Once the offer, stage, and local schedule details are resolved, generate the unsuffixed Polish preparation file independently of Calendar synchronization. Calendar success or failure must not delay or suppress preparation. Include:
+Once the offer, stage, and local schedule details are resolved, generate the unsuffixed Polish preparation file independently of Calendar synchronization. Before drafting candidate-specific claims, use [profile workflow](profile-workflow.md#validate-evidence-for-the-task) to validate the evidence those sections need. Missing or stale evidence leaves those sections explicitly incomplete; still produce logistics, company/role briefing, technical questions, and other independent sections. Calendar success or failure must not delay or suppress preparation. Include:
 
 - logistics checklist;
 - concise company and role briefing;
