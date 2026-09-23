@@ -43,6 +43,8 @@ latest_snapshot: null
 
 `capture_quality` is `complete`, `partial`, or `materially-incomplete`. The body contains responsibilities, mandatory/preferred requirements, benefits, material unavailable fields, and the full cleaned initial posting. Compact mode retains that evidence too. Later explicit refreshes go in `snapshots/<timestamp-safe-for-filename>.md`; preserve the initial capture.
 
+`expires_on` is the offer's end-of-term/application deadline (EOT), stored only as `YYYY-MM-DD` or `not-available`. Normalize explicit, partial, and relative deadline wording using the offset-bearing capture timestamp and the timezone from project settings, defaulting to `Europe/Warsaw`. Use the nearest future date only when the source wording makes it unambiguous. Preserve the source wording in the cleaned posting evidence; never derive EOT from `added_at`, publication date, directory date, or the offer's current age.
+
 `company.md` contains context at the requested research depth, source URLs and access dates, reused-fact attribution, and `Not quickly verifiable` markers.
 
 `history.md` is append-only: ISO timestamp, action, before/after values where applicable, source/reason, and unresolved work. Corrections are new entries.
@@ -53,6 +55,6 @@ Statuses: `saved`, `applied`, `screening`, `interviewing`, `offer-received`, `ac
 
 Update only the region between `<!-- job-application-manager:dashboard:start -->` and `<!-- job-application-manager:dashboard:end -->` in `applications.md`. Preserve surrounding manual material. If an existing dashboard lacks unambiguous markers, preserve it and resolve the boundary before replacing content.
 
-Each row includes `record_id`, company, role, status, last activity, next action, and a relative directory link. Order active applications by earliest scheduled action, then saved leads, then terminal outcomes. Next action is the earliest scheduled interview, otherwise an explicit recorded action, otherwise a labelled status-based suggestion such as `Decide whether to apply`.
+Each row includes `record_id`, company, role, EOT, status, last activity, next action, and a relative directory link. Render EOT as `YYYY-MM-DD` only when `expires_on` contains a normalized date; leave the cell blank otherwise. Never substitute `added_at` or another date. Order active applications by earliest scheduled action, then saved leads, then terminal outcomes. Next action is the earliest scheduled interview, otherwise an explicit recorded action, otherwise a labelled status-based suggestion such as `Decide whether to apply`.
 
 For additions, merge the new rows with the existing managed rows and order once; preserve unaffected next-action information. Rebuild from local offer/interview metadata only if the dashboard is absent or demonstrably inconsistent. Read metadata locally and emit derived rows, not complete record bodies.
