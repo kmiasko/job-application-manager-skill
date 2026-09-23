@@ -16,13 +16,14 @@ For a requested external Calendar operation, require a non-placeholder target Ca
 - title `Interview — Company — Role — Stage`;
 - start, end, duration, and timezone;
 - user-provided participants;
+- each known interviewer's name, position, and contact information;
 - meeting link or location;
 - minimal description and source-offer URL;
 - whether the operation creates, reschedules, or cancels an event.
 
 Default duration to 60 minutes. Use `Europe/Warsaw` only when no other timezone is stated. Ask about ambiguous dates, times, stages, or timezones. Omit reminder fields so the Calendar's existing defaults remain unchanged.
 
-Calendar descriptions may contain only company, role, stage, source URL, meeting link or location, and user-provided participant names. Keep profile analysis, weaknesses, company research, preparation, and interview notes local.
+Calendar descriptions may contain only company, role, stage, source URL, meeting link or location, and interviewer details. For every known interviewer, include their name and any available position and contact information (`contact_email`, `contact_number`, `contact_method`, or `contact_details`). Omit unavailable fields without placeholders. Keep profile analysis, weaknesses, company research, preparation, and interview notes local.
 
 Obtain confirmation immediately before every Calendar create, reschedule, or cancellation. Test authorization at the first Calendar operation and allow the user to authorize the connected Google Calendar integration when necessary. Store the returned event ID in the interview file.
 
@@ -34,7 +35,9 @@ Scheduling a recruiter screening changes offer status to `screening`; scheduling
 
 ## Interview file
 
-The stage file frontmatter contains stage number and name, offer ID, scheduled start/end, timezone, duration, participants, interviewers, location or meeting link, Calendar ID, Calendar event ID, Calendar synchronization state, result, preparation files, created time, and updated time. Store each interviewer as a YAML mapping with `name` plus optional `role`, `contact_method`, and `contact_details`, as defined in [project schema](project-schema.md). Keep this local interview metadata distinct from Calendar participants.
+The stage file frontmatter contains stage number and name, offer ID, scheduled start/end, timezone, duration, participants, interviewers, location or meeting link, Calendar ID, Calendar event ID, Calendar synchronization state, result, preparation files, created time, and updated time. Store each interviewer as a YAML mapping with `name` plus optional `position`, `contact_email`, `contact_number`, `contact_method`, and `contact_details`, as defined in [project schema](project-schema.md). Keep this interview metadata distinct from Calendar participants, while copying every available interviewer name, position, and contact field into the Calendar event description when scheduling or rescheduling.
+
+After saving an interviewer who gains an email address or phone number, follow [Google Contacts synchronization](google-contacts.md). Contact synchronization is independent of Calendar work: record its result locally and never roll back valid interview or Calendar changes when it is blocked or fails.
 
 The body contains agenda, logistics, verbatim comments, structured summary, commitments, expected next step, post-interview reflections, and `Personal notes`. Append each new verbatim comment with its timestamp. Record each supplied reflection under `## Post-interview reflections` with an explicit-offset timestamp, preserving the user's wording and earlier entries; add a correction as a new dated entry rather than rewriting the original. Update the structured summary without editing earlier raw comments or reflections.
 

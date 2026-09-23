@@ -85,7 +85,7 @@ Suggested interview stages are `recruiter`, `hiring-manager`, `technical`, `live
 
 Interview results are `pending`, `advanced`, `rejected`, `offer-received`, `cancelled`, and `unknown`.
 
-Each interview-stage frontmatter may also contain an `interviewers` YAML list. Each item uses `name` and, when available, `role`, `contact_method`, and `contact_details`. Preserve interviewers that are already captured; only add or update the people and fields the user identifies. Contact details remain local and are never copied to Calendar unless the user separately supplies the corresponding participant data for that event.
+Each interview-stage frontmatter may also contain an `interviewers` YAML list. Each item uses `name` and, when available, `position`, `contact_email`, `contact_number`, `contact_method`, and `contact_details`. Synchronization metadata is optional: `google_contact_resource_name`, `google_contact_sync_state`, and `google_contact_synced_at`. Sync state values are `pending`, `blocked`, `previewed`, `synced`, `noop`, and `failed`; set the timestamp only after `synced` or `noop`. `position` is the person's function in the process or job title, such as `HR`, `recruiter`, `developer`, or `engineering manager`. Preserve legacy `role`, all manual fields, and existing interviewers; use `position` for newly supplied values, and only add or update the people and fields the user identifies. When creating or rescheduling a Calendar event, include every available interviewer name, position, and contact field in the event description; omit unavailable fields without placeholders.
 
 ## Translations and staleness
 
